@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import PrivateRoute from './components/common/PrivateRoute'
+import DashboardLayout from './components/common/DashboardLayout'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import DashboardPage from './pages/DashboardPage'
@@ -18,9 +19,11 @@ function App() {
           
           {/* Protected Routes */}
           <Route element={<PrivateRoute />}>
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/study" element={<StudySessionPage />} />
-            <Route path="/analytics" element={<AnalyticsPage />} />
+            <Route element={<DashboardLayout />}>
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/study" element={<StudySessionPage />} />
+              <Route path="/analytics" element={<AnalyticsPage />} />
+            </Route>
           </Route>
           
           {/* Default Route */}

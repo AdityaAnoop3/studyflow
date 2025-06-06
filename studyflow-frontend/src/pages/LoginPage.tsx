@@ -19,8 +19,15 @@ export default function LoginPage() {
     try {
       await login(email, password)
       navigate('/dashboard')
-    } catch (err) {
-      setError('Invalid email or password')
+    } catch (err: any) {
+      // Handle specific error messages from backend
+      if (err.response?.data?.message) {
+        setError(err.response.data.message)
+      } else if (err.message) {
+        setError(err.message)
+      } else {
+        setError('Failed to sign in. Please check your credentials.')
+      }
     } finally {
       setLoading(false)
     }
