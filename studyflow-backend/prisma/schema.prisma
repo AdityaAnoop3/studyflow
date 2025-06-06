@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  studySessions StudySession[]
+  topics        Topic[]
+  problemSets   ProblemSet[]
+}
+
+model Topic {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  studySessions StudySession[]
+  reviews       Review[]
+}
+
+model StudySession {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topicId       String
+  topic         Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  duration      Int      // in minutes
+  difficulty    Int      // 1-5 scale
+  notes         String?
+  completedAt   DateTime @default(now())
+  
+  // Relations
+  reviews       Review[]
+}
+
+model Review {
+  id              String   @id @default(uuid())
+  topicId         String
+  topic           Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  studySessionId  String?
+  studySession    StudySession? @relation(fields: [studySessionId], references: [id])
+  scheduledFor    DateTime
+  completedAt     DateTime?
+  difficulty      Int?     // 1-5 scale after completion
+  
+  createdAt       DateTime @default(now())
+}
+
+model ProblemSet {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problems    Problem[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Problem {
+  id           String   @id @default(uuid())
+  problemSetId String
+  problemSet   ProblemSet @relation(fields: [problemSetId], references: [id], onDelete: Cascade)
+  question     String
+  answer       String
+  difficulty   Int      // 1-5 scale
+  lastAttempt  DateTime?
+  attempts     Int      @default(0)
+  successes    Int      @default(0)
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
