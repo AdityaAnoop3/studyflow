@@ -3,13 +3,14 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import authRoutes from './routes/auth'
 import studyRoutes from './routes/study'
+import problemSetRoutes from './routes/problemSet'
 
 console.log('Starting server initialization...')
 
 dotenv.config()
 
 const app = express()
-const PORT = process.env.PORT || 5001
+const PORT = process.env.PORT || 5000
 
 console.log('Configuring middleware...')
 
@@ -26,6 +27,7 @@ app.use((req, _res, next) => {
 // Routes
 app.use('/api/auth', authRoutes)
 app.use('/api/study', studyRoutes)
+app.use('/api/problem-sets', problemSetRoutes)
 
 // Root route
 app.get('/', (_req, res) => {
