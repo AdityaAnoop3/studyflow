@@ -60,7 +60,14 @@ model Review {
   completedAt     DateTime?
   difficulty      Int?     // 1-5 scale after completion
   
+  // SM-2 Algorithm fields
+  repetitions     Int      @default(0)  // Number of correct repetitions
+  easeFactor      Float    @default(2.5) // Ease factor (minimum 1.3)
+  interval        Int      @default(1)   // Current interval in days
+  quality         Int?     // Last review quality (0-5)
+  
   createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model ProblemSet {

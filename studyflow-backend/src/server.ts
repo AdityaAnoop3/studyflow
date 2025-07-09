@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 import authRoutes from './routes/auth'
 import studyRoutes from './routes/study'
 import problemSetRoutes from './routes/problemSet'
+import reviewRoutes from './routes/review'
 
 console.log('Starting server initialization...')
 
@@ -28,6 +29,7 @@ app.use((req, _res, next) => {
 app.use('/api/auth', authRoutes)
 app.use('/api/study', studyRoutes)
 app.use('/api/problem-sets', problemSetRoutes)
+app.use('/api/reviews', reviewRoutes)
 
 // Root route
 app.get('/', (_req, res) => {

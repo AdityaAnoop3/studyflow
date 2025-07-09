@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import { PrismaClient } from '@prisma/client'
+import { spacedRepetition } from '../utils/spacedRepetition'
 
 const prisma = new PrismaClient()
 
@@ -40,17 +41,19 @@ export const createStudySession = async (req: AuthRequest, res: Response): Promi
       }
     })
 
-    // Schedule review based on spaced repetition (simplified for now)
-    const reviewIntervals = [1, 3, 7, 14, 30] // days
-    const nextReviewDays = reviewIntervals[0]
-    const nextReviewDate = new Date()
-    nextReviewDate.setDate(nextReviewDate.getDate() + nextReviewDays)
+    // Schedule review based on spaced repetition
+    const quality = spacedRepetition.difficultyToQuality(difficulty)
+    const reviewData = spacedRepetition.calculateNextReview(quality)
+    const nextReviewDate = spacedRepetition.getNextReviewDate(reviewData.interval)
 
     await prisma.review.create({
       data: {
         topicId,
         studySessionId: session.id,
-        scheduledFor: nextReviewDate
+        scheduledFor: nextReviewDate,
+        repetitions: reviewData.repetitions,
+        easeFactor: reviewData.easeFactor,
+        interval: reviewData.interval
       }
     })
 

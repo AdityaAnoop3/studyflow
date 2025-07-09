@@ -9,6 +9,7 @@ import StudySessionPage from './pages/StudySessionPage'
 import AnalyticsPage from './pages/AnalyticsPage'
 import ProblemSetsPage from './pages/ProblemSetsPage'
 import ProblemSetDetailPage from './pages/ProblemSetDetailPage'
+import ReviewsPage from './pages/ReviewsPage'
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
               <Route path="/analytics" element={<AnalyticsPage />} />
               <Route path="/problem-sets" element={<ProblemSetsPage />} />
               <Route path="/problem-sets/:id" element={<ProblemSetDetailPage />} />
+              <Route path="/reviews" element={<ReviewsPage />} />
             </Route>
           </Route>
           
