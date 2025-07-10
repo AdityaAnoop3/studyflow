@@ -36,7 +36,7 @@ async def generate_study_plan(
         FROM "StudySession" s
         JOIN "Topic" t ON s."topicId" = t.id
         WHERE s."userId" = '{user_id}'
-        ORDER BY s.completed_at DESC
+        ORDER BY s."completedAt" DESC
         LIMIT 100
         """
         sessions_df = pd.read_sql(sessions_query, con=cast(Engine, db.bind))
@@ -90,7 +90,7 @@ async def get_topic_recommendations(
             COUNT(s.id) as session_count,
             AVG(s.duration) as avg_duration,
             AVG(s.difficulty) as avg_difficulty,
-            MAX(s.completed_at) as last_studied,
+            MAX(s."completedAt") as last_studied,
             AVG(r.quality) as avg_review_quality
         FROM "Topic" t
         LEFT JOIN "StudySession" s ON t.id = s."topicId"
@@ -173,12 +173,12 @@ async def get_study_insights(
             s.difficulty,
             s.completed_at,
             t.name as topic_name,
-            EXTRACT(hour FROM s.completed_at) as hour,
-            EXTRACT(dow FROM s.completed_at) as day_of_week
+            EXTRACT(hour FROM s."completedAt") as hour,
+            EXTRACT(dow FROM s."completedAt") as day_of_week
         FROM "StudySession" s
         JOIN "Topic" t ON s."topicId" = t.id
         WHERE s."userId" = '{user_id}'
-        ORDER BY s.completed_at DESC
+        ORDER BY s."completedAt" DESC
         """
         
         sessions_df = pd.read_sql(query, con=cast(Engine, db.bind))

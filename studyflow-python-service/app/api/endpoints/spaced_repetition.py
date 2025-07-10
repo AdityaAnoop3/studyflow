@@ -38,30 +38,30 @@ async def calculate_next_review(
             SELECT 
                 AVG(s.difficulty) as avg_difficulty,
                 COUNT(s.id) as session_count,
-                MAX(s.completed_at) as last_studied
+                MAX(s."completedAt") as last_studied
             FROM "StudySession" s
             JOIN "Topic" t ON s."topicId" = t.id
             WHERE t.id = '{review.topic_id}' AND t."userId" = '{user_id}'
             """
             topic_stats = pd.read_sql(topic_query, con=cast(Engine, db.bind))
             
-            if not topic_stats.empty:
-                performance_data['subject_difficulty_avg'] = topic_stats['avg_difficulty'].iloc[0]
+            if not topic_stats.empty and topic_stats['avg_difficulty'].iloc[0] is not None:
+                performance_data['subject_difficulty_avg'] = float(topic_stats['avg_difficulty'].iloc[0])
         
         # Get user's best performance time
         time_query = f"""
         SELECT 
-            EXTRACT(hour FROM completed_at) as hour,
+            EXTRACT(hour FROM "completedAt") as hour,
             AVG(CASE WHEN difficulty <= 3 THEN 1 ELSE 0 END) as success_rate
         FROM "StudySession"
         WHERE "userId" = '{user_id}'
-        GROUP BY hour
+        GROUP BY EXTRACT(hour FROM "completedAt")
         ORDER BY success_rate DESC
         LIMIT 1
         """
         time_stats = pd.read_sql(time_query, con=cast(Engine, db.bind))
         
-        if not time_stats.empty:
+        if not time_stats.empty and time_stats['hour'].iloc[0] is not None:
             performance_data['best_performance_hour'] = int(time_stats['hour'].iloc[0])
         
         # Get today's session count for fatigue calculation
@@ -69,12 +69,12 @@ async def calculate_next_review(
         SELECT COUNT(*) as count
         FROM "StudySession"
         WHERE "userId" = '{user_id}'
-        AND DATE(completed_at) = CURRENT_DATE
+        AND DATE("completedAt") = CURRENT_DATE
         """
         today_stats = pd.read_sql(today_query, con=cast(Engine, db.bind))
         
-        if not today_stats.empty:
-            performance_data['session_count_today'] = today_stats['count'].iloc[0]
+        if not today_stats.empty and today_stats['count'].iloc[0] is not None:
+            performance_data['session_count_today'] = int(today_stats['count'].iloc[0])
         
         # Get quality improvement trend
         improvement_query = f"""
@@ -95,7 +95,7 @@ async def calculate_next_review(
         improvement_stats = pd.read_sql(improvement_query, con=cast(Engine, db.bind))
         
         if not improvement_stats.empty and improvement_stats['improvement'].iloc[0] is not None:
-            performance_data['avg_quality_improvement'] = improvement_stats['improvement'].iloc[0]
+            performance_data['avg_quality_improvement'] = float(improvement_stats['improvement'].iloc[0])
         
         # Calculate next review with personalization
         result = sr_service.calculate_next_interval(

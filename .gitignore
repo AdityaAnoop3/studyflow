@@ -49,4 +49,8 @@ env/
 
 # OS
 Thumbs.db
+
+# Ignore the Python microservice virtualenv and its env file
+/studyflow-python-service/venv/
+/studyflow-python-service/.env
 EOF

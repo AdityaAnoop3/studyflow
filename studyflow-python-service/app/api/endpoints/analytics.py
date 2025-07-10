@@ -28,15 +28,15 @@ async def analyze_study_patterns(
             s.id,
             s.duration,
             s.difficulty,
-            s.completed_at,
+            s."completedAt",
             s.notes,
             t.name as topic_name,
             t.id as topic_id
         FROM "StudySession" s
         JOIN "Topic" t ON s."topicId" = t.id
         WHERE s."userId" = '{user_id}'
-        AND s.completed_at > '{(datetime.now() - timedelta(days=days)).isoformat()}'
-        ORDER BY s.completed_at
+        AND s."completedAt" > '{(datetime.now() - timedelta(days=days)).isoformat()}'
+        ORDER BY s."completedAt"
         """
         
         sessions_df = pd.read_sql(query, con=cast(Engine, db.bind))
@@ -69,7 +69,7 @@ async def get_learning_velocity(
         SELECT 
             s.duration,
             s.difficulty,
-            s.completed_at,
+            s."completedAt",
             t.name as topic_name
         FROM "StudySession" s
         JOIN "Topic" t ON s."topicId" = t.id
@@ -79,7 +79,7 @@ async def get_learning_velocity(
         if topic_id:
             query += f" AND t.id = '{topic_id}'"
             
-        query += " ORDER BY s.completed_at"
+        query += ' ORDER BY s."completedAt"'
         
         sessions_df = pd.read_sql(query, con=cast(Engine, db.bind))
         
@@ -117,14 +117,14 @@ async def get_performance_forecast(
         SELECT 
             s.duration,
             s.difficulty,
-            s.completed_at,
+            s."completedAt",
             r.quality,
             r."easeFactor",
             r.interval
         FROM "StudySession" s
         LEFT JOIN "Review" r ON s.id = r."studySessionId"
         WHERE s."userId" = '{user_id}'
-        ORDER BY s.completed_at
+        ORDER BY s."completedAt"
         """
         
         data_df = pd.read_sql(query, con=cast(Engine, db.bind))
@@ -136,8 +136,8 @@ async def get_performance_forecast(
             }
         
         # Simple trend forecasting
-        data_df['completed_at'] = pd.to_datetime(data_df['completed_at'])
-        data_df['days_from_start'] = (data_df['completed_at'] - data_df['completed_at'].min()).dt.days
+        data_df['completedAt'] = pd.to_datetime(data_df['completedAt'])
+        data_df['days_from_start'] = (data_df['completedAt'] - data_df['completedAt'].min()).dt.days
         
         # Linear regression for difficulty trend
         from scipy import stats

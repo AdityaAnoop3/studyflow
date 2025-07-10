@@ -10,17 +10,17 @@ if (!fs.existsSync(uploadDir)) {
 
 // Configure storage
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination: function (_req, _file, cb) {
     cb(null, uploadDir)
   },
-  filename: function (req, file, cb) {
+  filename: function (_req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
     cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
   }
 })
 
 // File filter
-const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (_req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   const allowedTypes = [
     'application/pdf',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
